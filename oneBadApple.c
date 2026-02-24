@@ -11,6 +11,8 @@
 void sigHandler (int);
 
 int main() {
+    int i = 0 //counting for the nodes
+    int counter = 0 //while loop variable
     int fd[2];
     int pid;
     int pipeCreationResult;
@@ -25,10 +27,28 @@ int main() {
         exit(1);
     }
 
-    while (1) { // user input
-        printf("Enter command: ");
-        fgets(string, n, stdin);
+    while (1) { // user input for number of nodes
+        printf("Enter number of nodes: ");
+        fgets(int, n, stdin);
     }
+
+    while (counter < n){ // creating nodes from given input
+        struct node i
+        {
+            struct node *next
+        };
+        n++
+        i++
+    }
+
+    while (1) { // getting the message the user what to send and what node to send to
+        printf("Enter message: ");
+        fgets(char, message, stdin);
+        printf("Enter desired node to receive message: "):
+        fgets(int, nodenum, stdin);
+
+    }
+    
     string[strcspn(string, "\n") = '\0'];
     signal (SIGINT, sigHandler);
     printf ("waiting...\n");
