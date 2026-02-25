@@ -14,19 +14,19 @@ int main() {
     // int i = 0; //counting for the nodes
     // int counter = 0; //while loop variable
     char nodesString[20];
-    long nodes;
+    int nodes;
     long destinationNodeInteger;
     char* noNode;
     char *errorCheacking;
     while (1) { // user input for number of nodes
         printf("Enter number of nodes: ");
-        fgets(nodesString, sizeof(nodesString) stdin);
+        fgets(nodesString, sizeof(nodesString), stdin);
         if (strlen(nodesString) > 0 || noNode == NULL) {
             break;
         }
     }
     nodesString[strcspn(nodesString, "\n")] = '\0';
-    nodes = strtol(nodesString, &errorCheacking, 10);
+    nodes = (int)strtol(nodesString, &errorCheacking, 10);
 
     int fd[nodes][2];
     int pid;
@@ -35,7 +35,7 @@ int main() {
     char destinationNode[20];
     int pipeCreationResult;
     for (int i = 0; i < nodes; i++) { // creating pipes
-        pipeCreationResult = pipe(fd);
+        pipeCreationResult = pipe(fd[i]);
         if (pipeCreationResult < 0) {
             perror("Failed pipe creation\n");
             exit(1);
@@ -76,29 +76,55 @@ int main() {
                 if (fd[j][WRITE] != outputPipe) {
                     close(fd[j][WRITE]);
                 }
+            }
+            while (1) { //infinant loop
+                // pause(); // the apple
+                printf("Node %d: received the appel and is inspecting message\n", childId);
+                if (destinationNodeInteger == childId) {
+                    printf("Node %d received the message and it is: %s\n", childId, message);
+                    read(inputPipe, &readMessage, sizeof(char));
+                    printf("Node %d: clearing message header\n", childId);
+                    strcpy(message, "empty");
+                }
+                else { // write to the next node (might need to move after else)
+                    printf("Apple is moving from node %d to node %d\n", outputPipe, inputPipe);
+                    write(outputPipe, message, strlen(message));
+                    printf("Node %d: forwarding massage to node %d", outputPipe, inputPipe);
+                }
+            }
         }
-    
     }
-    while (counter < n){ // creating nodes from given input
-        struct node[i] {
-            struct node *next;
-        };
-        n++;
-        i++;
+    // parent
+    printf("Parent: apple returned, ready for another message.\n");
+    printf("Enter the destination node as a number (0 ...): ");
+    char* noDestination = fgets(destinationNode, sizeof(destinationNode), stdin);
+    printf("Enter message: ");
+    char* noMessage = fgets(message, 1000, stdin);
+    for (int i = 0; i < nodes; i++) { // closing all pipes
+        printf("Node %d is shutting down\n", nodes);
+        close(fd[i][0]);
+        close(fd[i][1]);
     }
-
     
-    string[strcspn(string, "\n") = '\0'];
     signal (SIGINT, sigHandler);
-    printf ("waiting...\n");
-    pause();
+    // printf ("waiting...\n");
+    while (1) {
+        pause(); // the apple
+    }
+    // while (counter < n){ // creating nodes from given input
+    //     struct node[i] {
+    //         struct node *next;
+    //     };
+    //     n++;
+    //     i++;
+    // }
     return 0;
 }
 void sigHandler (int sigNum) {
-    printf (" received an interrupt.\n");
-    // this is where shutdown code would be inserted
-    sleep (1);
-    printf ("time to exit\n");
+    printf ("received an interrupt.\n");
+    if (sigNum == SIGINT) { // To find Ctrl c
+        printf ("^C received.  That's it, I'm shutting you down...\n"); 
+    }
     exit(0);
 }
 
