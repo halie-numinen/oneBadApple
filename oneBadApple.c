@@ -16,8 +16,6 @@ struct messagingSystem{
 void sigHandler (int);
 
 int main() {
-    // int i = 0; //counting for the nodes
-    // int counter = 0; //while loop variable
     char nodesString[20];
     int nodes;
     char* noNode;
@@ -45,7 +43,6 @@ int main() {
             exit(1);
         }
         printf("Parent created node %d with a pid of: %d\n", i, getpid());
-
     }
     int childId;
     for (int i = 1; i < nodes; i++) { 
@@ -54,21 +51,20 @@ int main() {
             perror("Fork failed\n");
             exit(1);
         }
-        if (pid == 0) {
+        if (pid == 0) { // Child
             childId = i;
             inputPipe = fd[i][READ]; 
             outputPipe = fd[(i + 1) % nodes][WRITE];
         
             for (int j = 0; j < nodes; j++) { // closing unused ends
                 if (i != j) {
-                    close(fd[j][READ]); // what the child uses
+                    close(fd[j][READ]); 
                 }
                 if (j != (i + 1) % nodes) {
                     close(fd[j][WRITE]);
                 }
             }
             while (1) { 
-                // pause(); // the apple
                 read(inputPipe, &apple, sizeof(apple));
                 printf("Node %d: received the apple and is inspecting message\n", childId);
                 if (apple.destinationNode == childId) {
@@ -76,11 +72,10 @@ int main() {
                     printf("Node %d: clearing message header\n", childId);
                     strcpy(apple.message, "empty");
                 }
-                else { // write to the next node (might need to move after else)
-                    printf("Node %d is forwarding massage to node %d", childId, (childId + 1) % nodes);
+                else { // write to the next node
+                    printf("Node %d is forwarding massage to node %d\n", childId, (childId + 1) % nodes);
                 }
                 write(outputPipe, &apple, sizeof(apple));
-                // printf("Apple is moving from node %d to node %d\n", outputPipe, inputPipe);
             }
         }
     }
@@ -89,7 +84,6 @@ int main() {
     outputPipe = fd[1][WRITE];
     
     signal (SIGINT, sigHandler);
-    // printf ("waiting...\n");
     for (int j = 0; j < nodes; j++) { // closing unused ends
         if (j != 0) {
             close(fd[j][READ]); 
@@ -98,7 +92,7 @@ int main() {
             close(fd[j][WRITE]);
         }
     }
-    while (1) { // getting the message the user what to send and what node to send to
+    while (1) { // getting the message the user what to send and what node to send to (parent loop)
         printf("Enter message: ");
         fgets(message, 1000, stdin);
         printf("Enter desired node to receive message: ");
@@ -111,14 +105,13 @@ int main() {
         write(outputPipe, &apple, sizeof(apple));
         read(inputPipe, &apple, sizeof(apple));
         printf("Parent: apple returned.\n");
-        // pause(); // the apple
     }
 
     return 0;
     }
     void sigHandler (int sigNum) {
         printf ("Parent is shuting down\n");
-        if (sigNum == SIGINT) { // To find Ctrl c
+        if (sigNum == SIGINT) { 
             printf ("^C received.\n"); 
         }
         
